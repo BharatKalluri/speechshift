@@ -37,9 +37,7 @@ class NotificationManager:
     @classmethod
     def recording_stopped(cls, filename: str):
         """Show recording stopped notification"""
-        cls.send_notification(
-            "✅ SpeechShift", f"Recording saved: {filename}", "normal"
-        )
+        pass
 
     @classmethod
     def recording_error(cls, error: str):

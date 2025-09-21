@@ -23,10 +23,10 @@ class AudioRecorder:
         self.channels = CONFIG["channels"]
         self.dtype = CONFIG["dtype"]
 
-    def get_default_device(self) -> Optional[int]:
+    @staticmethod
+    def get_default_device() -> Optional[int]:
         """Get default input device"""
         try:
-            devices = sd.query_devices()
             default_input = sd.default.device[0]  # Input device
             return default_input
         except Exception as e:
@@ -108,7 +108,8 @@ class AudioRecorder:
             # Always reset state
             self._reset_recording_state()
 
-    def _stop_recording_process(self):
+    @staticmethod
+    def _stop_recording_process():
         """Stop the actual recording process"""
         recording_state.is_recording = False
 
@@ -125,7 +126,8 @@ class AudioRecorder:
         )
         logger.info("Recording stopped")
 
-    def _transcribe_and_insert(self, temp_file: Path) -> Optional[str]:
+    @staticmethod
+    def _transcribe_and_insert(temp_file: Path) -> Optional[str]:
         """Transcribe audio file and insert text"""
         NotificationManager.transcription_started()
 
@@ -149,7 +151,8 @@ class AudioRecorder:
             NotificationManager.transcription_error(str(e))
             return None
 
-    def _cleanup_temp_file(self, temp_file: Path):
+    @staticmethod
+    def _cleanup_temp_file(temp_file: Path):
         """Clean up temporary recording file"""
         try:
             if temp_file.exists():
@@ -158,7 +161,8 @@ class AudioRecorder:
         except Exception as e:
             logger.warning(f"Failed to clean up temp file: {e}")
 
-    def _reset_recording_state(self):
+    @staticmethod
+    def _reset_recording_state():
         """Reset all recording state variables"""
         recording_state.current_file = None
         recording_state.audio_data = []
