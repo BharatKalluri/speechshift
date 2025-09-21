@@ -33,6 +33,7 @@ dependencies = [
     "numpy>=1.21.0",
     "faster-whisper>=0.10.0",
     "psutil>=7.1.0",
+    "black>=24.8.0",
 ]
 
 [project.urls]

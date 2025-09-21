@@ -3,7 +3,7 @@ from typing import Optional
 
 from faster_whisper import WhisperModel
 
-from speechshift.main import WHISPER_AVAILABLE, CONFIG
+from speechshift.core.config import CONFIG
 from speechshift.core.logger import logger
 
 
@@ -11,9 +11,6 @@ class WhisperTranscriber:
     """Handle audio transcription using faster-whisper"""
 
     def __init__(self):
-        if not WHISPER_AVAILABLE:
-            raise ImportError("faster-whisper not available")
-
         self.model = None
         self.model_size = CONFIG["whisper_model"]
         self.device = CONFIG["whisper_device"]
@@ -79,4 +76,4 @@ class WhisperTranscriber:
 
     def is_available(self) -> bool:
         """Check if transcription is available"""
-        return WHISPER_AVAILABLE and self._load_model()
+        return self._load_model()

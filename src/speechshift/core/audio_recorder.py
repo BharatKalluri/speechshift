@@ -10,7 +10,7 @@ import sounddevice as sd
 
 from speechshift.core.notification_manager import NotificationManager
 from speechshift.core.whisper_transcriber import WhisperTranscriber
-from speechshift.main import AUDIO_AVAILABLE, CONFIG, recording_state
+from speechshift.core.config import CONFIG
 from speechshift.core.logger import logger
 from speechshift.core.wayland_text_input import WaylandTextInput
 
@@ -19,9 +19,6 @@ class AudioRecorder:
     """Handle audio recording with PipeWire via sounddevice"""
 
     def __init__(self):
-        if not AUDIO_AVAILABLE:
-            raise ImportError("sounddevice not available")
-
         self.sample_rate = CONFIG["sample_rate"]
         self.channels = CONFIG["channels"]
         self.dtype = CONFIG["dtype"]
@@ -54,7 +51,6 @@ class AudioRecorder:
             recording_state.current_file = temp_file
             recording_state.start_time = time.time()
 
-
             # Start recording thread
             recording_state.recording_thread = threading.Thread(
                 target=self._recording_worker, args=(temp_file,)
@@ -77,33 +73,33 @@ class AudioRecorder:
         if not recording_state.is_recording:
             logger.warning("No recording in progress")
             return None
-            
+
         # Check if already transcribing
         if recording_state.is_transcribing:
             logger.info("Transcription already in progress")
             return None
-            
+
         # Mark as transcribing to prevent duplicate calls
         recording_state.is_transcribing = True
-        
+
         try:
             # Stop the recording
             self._stop_recording_process()
-            
+
             # Get the recorded file
             temp_file = recording_state.current_file
             if not temp_file or not temp_file.exists():
                 logger.warning("No recording file found")
                 return None
-                
+
             # Transcribe and handle result
             result = self._transcribe_and_insert(temp_file)
-            
+
             # Clean up
             self._cleanup_temp_file(temp_file)
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Stop recording failed: {e}")
             NotificationManager.recording_error(str(e))
@@ -111,28 +107,32 @@ class AudioRecorder:
         finally:
             # Always reset state
             self._reset_recording_state()
-    
+
     def _stop_recording_process(self):
         """Stop the actual recording process"""
         recording_state.is_recording = False
-        
+
         # Wait for recording thread to finish
         if recording_state.recording_thread:
             recording_state.recording_thread.join(timeout=5.0)
             if recording_state.recording_thread.is_alive():
                 logger.warning("Recording thread did not stop cleanly")
-                
-        NotificationManager.recording_stopped(recording_state.current_file.name if recording_state.current_file else "unknown")
+
+        NotificationManager.recording_stopped(
+            recording_state.current_file.name
+            if recording_state.current_file
+            else "unknown"
+        )
         logger.info("Recording stopped")
-    
+
     def _transcribe_and_insert(self, temp_file: Path) -> Optional[str]:
         """Transcribe audio file and insert text"""
         NotificationManager.transcription_started()
-        
+
         try:
             transcriber = WhisperTranscriber()
             transcribed_text = transcriber.transcribe_audio(temp_file)
-            
+
             if transcribed_text:
                 WaylandTextInput.insert_text(transcribed_text)
                 NotificationManager.transcription_completed(transcribed_text)
@@ -142,13 +142,13 @@ class AudioRecorder:
                 WaylandTextInput.insert_text("(transcription failed)")
                 NotificationManager.transcription_error("Empty transcription")
                 return None
-                
+
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             WaylandTextInput.insert_text("(transcription error)")
             NotificationManager.transcription_error(str(e))
             return None
-    
+
     def _cleanup_temp_file(self, temp_file: Path):
         """Clean up temporary recording file"""
         try:
@@ -157,7 +157,7 @@ class AudioRecorder:
                 logger.info(f"Temporary file cleaned up: {temp_file}")
         except Exception as e:
             logger.warning(f"Failed to clean up temp file: {e}")
-    
+
     def _reset_recording_state(self):
         """Reset all recording state variables"""
         recording_state.current_file = None
@@ -195,3 +195,16 @@ class AudioRecorder:
         except Exception as e:
             logger.error(f"Recording worker error: {e}")
             recording_state.is_recording = False
+
+
+class RecordingState:
+    def __init__(self):
+        self.is_recording = False
+        self.recording_thread = None
+        self.audio_data = []
+        self.current_file = None
+        self.start_time = None
+        self.is_transcribing = False
+
+
+recording_state = RecordingState()
