@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "speechshift"
+version = "0.1.0"
+description = "A fully local, offline first speech-to-text application made for Linux."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Desktop Environment",
+]
+keywords = ["speech-to-text", "hyprland", "wayland", "audio", "transcription"]
+requires-python = ">=3.8"
+dependencies = [
+    "sounddevice>=0.4.6",
+    "numpy>=1.21.0",
+    "faster-whisper>=0.10.0",
+    "psutil>=7.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/speechshift"
+Repository = "https://github.com/yourusername/speechshift.git"
+Issues = "https://github.com/yourusername/speechshift/issues"
+
+[project.scripts]
+speechshift = "speechshift.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/speechshift"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+    "/pyproject.toml",
+]
