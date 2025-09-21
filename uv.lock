@@ -1396,7 +1396,7 @@ wheels = [
 
 [[package]]
 name = "speechshift"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "black", version = "24.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
