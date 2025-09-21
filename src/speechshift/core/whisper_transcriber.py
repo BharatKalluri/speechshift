@@ -43,11 +43,9 @@ class WhisperTranscriber:
             return True
 
         try:
-            logger.info(f"Loading Whisper model: {self.model_size}")
             self.model = WhisperModel(
                 self.model_size, device=self.device, compute_type=self.compute_type
             )
-            logger.info("Whisper model loaded successfully")
             return True
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
@@ -251,15 +249,12 @@ class WhisperTranscriber:
         if not self._load_model():
             return None
 
-        logger.info(f"Starting transcription of: {audio_file}")
-
         # Load and preprocess audio
         audio_data, sample_rate = self._load_audio_data(audio_file)
         if audio_data is None:
             return None
 
         # Apply preprocessing
-        logger.info("Applying audio preprocessing...")
         trimmed_audio = self._trim_silence(audio_data, sample_rate)
         normalized_audio = self._normalize_audio(trimmed_audio)
 
@@ -289,10 +284,6 @@ class WhisperTranscriber:
                 ),
             )
 
-            logger.info(
-                f"Detected language: {info.language} (confidence: {info.language_probability:.2f})"
-            )
-
             # Collect all text segments
             transcribed_text = ""
             for segment in segments:
@@ -303,7 +294,7 @@ class WhisperTranscriber:
             logger.info(f"Before postprocessing: {transcribed_text}")
             if transcribed_text:
                 processed_text = self._post_process_text(transcribed_text)
-                logger.info(f"Transcription completed: '{processed_text}...'")
+                logger.info(f"Transcription completed: '{processed_text}'")
                 return processed_text
             else:
                 logger.warning("Transcription resulted in empty text")
