@@ -12,7 +12,6 @@ Demo done on [omarchy](https://omarchy.org/) running hyprland
 
 ## Roadmap
 - Support for even faster transcription methods like nvidia parakeet
-- Support online transcription APIs like OpenAI and other popular ones
 - Custom vocabulary support
 - Use LLM's like ChatGPT to auto format text before pasting
 
@@ -62,7 +61,34 @@ speechshift --deamon
 ## Usage
 
 1. **Start recording** (Super+Shift+R): You'll see a notification: "🎤 Recording started..."
-2. **Stop recording** (Super+Shift+R): Audio is automatically transcribed using faster-whisper, Transcribed text is typed into the focused window. Notifications show: "🔄 Transcribing audio..." → "✅ Transcribed: [preview]"
+2. **Stop recording** (Super+Shift+R): Audio is automatically transcribed using faster-whisper or [AssemblyAI](https://www.assemblyai.com/). Transcribed text is typed into the focused window. Notifications show: "🔄 Transcribing audio..." → "✅ Transcribed: [preview]"
+
+
+## Configuration
+
+SpeechShift can be configured by creating a `config.json` file in `~/.config/speechshift/`. If the file doesn't exist, it will be created with default settings upon first run.
+
+Here's an example configuration to override the default whisper model and language:
+
+```json
+{
+  "transcription": {
+    "engine": "whisper"
+  },
+  "whisper": {
+    "model": "medium",
+    "language": "en"
+  },
+  "audio": {
+    "recording_device": null,
+    "notification_timeout": 3000
+  }
+}
+```
+
+to use Assembly AI, make sure to set the `ASSEMBLYAI_API_KEY` environment variable and set the transcription engine to `assemblyai`.
+
+_Assembly AI is highly recommended since its much better on accuracy & speed._
 
 ## How It Works
 
