@@ -49,8 +49,10 @@ bind = SUPER_SHIFT, R, exec, /path/to/speechshift --toggle
 and setup speechshift daemon to startup on default by adding these lines to `~/.config/hypr/hyprland.conf`
 
 ```bash
-exec-once = /path/to/speechshift --deamon
+exec-once = bash -c 'source /path/to/.bashrc && /path/to/speechshift --daemon'
 ```
+
+we'll need to source the right file, which has the `ASSEMBLYAI_API_KEY` if assembly ai is being used
 
 Then either restart, so that the deamon is automatically run. Or start running the speechshift deamon manually for this session by running
 
