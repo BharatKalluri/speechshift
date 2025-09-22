@@ -36,7 +36,7 @@ class SpeechshiftDaemon:
         # Import here to avoid circular imports
         from speechshift.core.config import CONFIG
         from speechshift.core.audio_recorder import AudioRecorder
-        from speechshift.core.whisper_transcriber import WhisperTranscriber
+        from speechshift.core.audio_transcriber import AudioTranscriber
 
         self.socket_path = CONFIG["daemon_socket"]
         self.socket = None
@@ -45,7 +45,7 @@ class SpeechshiftDaemon:
 
         # Initialize components
         self.audio_recorder = AudioRecorder()
-        self.transcriber = WhisperTranscriber()
+        self.transcriber = AudioTranscriber()
 
     def is_daemon_running(self) -> bool:
         """Check if daemon is already running (socket file + ping test)"""

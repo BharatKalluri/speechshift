@@ -49,7 +49,9 @@ class NotificationManager:
     @classmethod
     def transcription_started(cls):
         """Show transcription started notification"""
-        cls.send_notification("🔄 SpeechShift", "Transcribing audio...", "normal")
+        cls.send_notification(
+            "🔄 SpeechShift", "Transcribing audio...", "normal", timeout=10000
+        )
 
     @classmethod
     def transcription_completed(cls, text: str):
