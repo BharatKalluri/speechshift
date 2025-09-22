@@ -18,40 +18,50 @@ class WaylandTextInput:
             return False
 
     @staticmethod
-    def type_text(text: str) -> bool:
-        """Type text using wtype"""
+    def get_clipboard() -> str:
+        """Get clipboard content using wl-paste"""
         try:
-            subprocess.run(["wtype", text], check=True)
-            return True
+            result = subprocess.run(
+                ["wl-paste"], check=True, capture_output=True, text=True
+            )
+            return result.stdout
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to type text: {e}")
-            return False
+            logger.error(f"Failed to get clipboard: {e}")
+            return ""
 
     @classmethod
     def paste_text(cls, text: str) -> bool:
         """Paste text by setting clipboard and simulating Ctrl+V"""
+        original_clipboard_content = cls.get_clipboard()
         try:
             # Set clipboard
             if not cls.set_clipboard(text):
                 return False
 
             # Small delay to ensure clipboard is set
-            time.sleep(0.1)
+            time.sleep(0.5)
 
             # Simulate Ctrl+V
-            subprocess.run(["wtype", "-M", "ctrl", "v"], check=True)
+            subprocess.run(
+                ["hyprctl", "dispatch", "sendshortcut", "CTRL,V,"], check=True
+            )
+            # Small delay to ensure that paste went through
+            time.sleep(0.5)
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to paste text: {e}")
             return False
+        finally:
+            # Restore original clipboard content
+            cls.set_clipboard(original_clipboard_content)
 
     @classmethod
     def insert_text(cls, text: str) -> bool:
         """Insert text using the best available method"""
         # Try direct typing first
-        if cls.type_text(text):
-            return True
+        # if cls.type_text(text):
+        #     return True
 
         # Fallback to clipboard paste
-        logger.info("Direct typing failed, trying clipboard paste")
+        # logger.info("Direct typing failed, trying clipboard paste")
         return cls.paste_text(text)
