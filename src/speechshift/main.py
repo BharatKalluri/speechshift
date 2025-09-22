@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
 SpeechShift POC for Arch Linux + Hyprland
-A speech-to-text application that records audio and transcribes it using faster-whisper
+A speech-to-text application that records audio and transcribes it using faster-whisper or Assembly AI
 
 Requirements:
 - Arch Linux with Hyprland
 - PipeWire audio system
 - mako notifications
 - wl-clipboard and wtype for Wayland text input
-- faster-whisper for transcription
+- faster-whisper and/or Assembly AI for transcription
 
 Usage:
     speechshift --daemon    # Run as background daemon
@@ -53,19 +53,27 @@ def main():
         except Exception as e:
             print(f"Audio test failed: {e}")
 
-        # Test Whisper transcription
+        # Test transcription engines
         try:
             from speechshift.core.audio_transcriber import AudioTranscriber
 
             transcriber = AudioTranscriber()
-            if transcriber.is_available():
-                print(
-                    f"Whisper transcription available: model={CONFIG['whisper_model']}"
-                )
+            available_engines = transcriber.available_engines()
+            print(f"Available transcription engines: {available_engines}")
+            print(f"Current engine: {CONFIG.get('transcription_engine', 'whisper')}")
+            
+            if transcriber.is_available("whisper"):
+                print(f"Whisper transcription available: model={CONFIG['whisper_model']}")
             else:
-                print("Whisper model loading failed")
+                print("Whisper transcription not available")
+                
+            if transcriber.is_available("assemblyai"):
+                print("Assembly AI transcription available")
+            else:
+                print("Assembly AI transcription not available (API key not set)")
+                
         except Exception as e:
-            print(f"Whisper test failed: {e}")
+            print(f"Transcription test failed: {e}")
 
         # Test Wayland tools
         import subprocess

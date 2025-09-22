@@ -133,7 +133,8 @@ class AudioRecorder:
 
         try:
             transcriber = AudioTranscriber()
-            transcribed_text = transcriber.transcribe_audio(temp_file)
+            engine = CONFIG.get("transcription_engine", "whisper")
+            transcribed_text = transcriber.transcribe_audio(temp_file, engine=engine)
 
             if transcribed_text:
                 WaylandTextInput.insert_text(transcribed_text)

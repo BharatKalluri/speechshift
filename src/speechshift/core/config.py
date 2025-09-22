@@ -13,7 +13,8 @@ BASE_CONFIG = {
     "hyprland_socket": None,  # Will be auto-detected
     "recording_device": None,  # Use default
     "notification_timeout": 3000,  # milliseconds
-    # Whisper transcription settings
+    # Transcription settings
+    "transcription_engine": "whisper",  # Engine: whisper, assemblyai
     "whisper_model": "small",  # Model size: tiny, base, small, medium, large-v3
     "whisper_device": "cpu",  # Device: cpu, cuda, auto
     "whisper_compute_type": "int8",  # Compute type: int8, int16, float16, float32
@@ -48,6 +49,9 @@ def _get_config_dir():
 def _create_default_config(config_file):
     """Create default config file if it doesn't exist"""
     default_config = {
+        "transcription": {
+            "engine": "whisper"
+        },
         "whisper": {
             "model": "small",
             "language": None,
@@ -89,6 +93,12 @@ def _merge_configs():
     """Merge user config with base config"""
     config = BASE_CONFIG.copy()
     user_config = _load_user_config()
+    
+    # Override transcription settings if present
+    if "transcription" in user_config:
+        transcription_config = user_config["transcription"]
+        if "engine" in transcription_config:
+            config["transcription_engine"] = transcription_config["engine"]
     
     # Override whisper settings if present
     if "whisper" in user_config:
