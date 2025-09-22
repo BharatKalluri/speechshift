@@ -61,17 +61,19 @@ def main():
             available_engines = transcriber.available_engines()
             print(f"Available transcription engines: {available_engines}")
             print(f"Current engine: {CONFIG.get('transcription_engine', 'whisper')}")
-            
+
             if transcriber.is_available("whisper"):
-                print(f"Whisper transcription available: model={CONFIG['whisper_model']}")
+                print(
+                    f"Whisper transcription available: model={CONFIG['whisper_model']}"
+                )
             else:
                 print("Whisper transcription not available")
-                
+
             if transcriber.is_available("assemblyai"):
                 print("Assembly AI transcription available")
             else:
                 print("Assembly AI transcription not available (API key not set)")
-                
+
         except Exception as e:
             print(f"Transcription test failed: {e}")
 

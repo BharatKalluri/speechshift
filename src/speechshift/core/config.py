@@ -40,7 +40,7 @@ def _get_config_dir():
         config_base = Path(xdg_config)
     else:
         config_base = Path.home() / ".config"
-    
+
     config_dir = config_base / "speechshift"
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
@@ -49,23 +49,18 @@ def _get_config_dir():
 def _create_default_config(config_file):
     """Create default config file if it doesn't exist"""
     default_config = {
-        "transcription": {
-            "engine": "whisper"
-        },
+        "transcription": {"engine": "whisper"},
         "whisper": {
             "model": "small",
             "language": None,
             "device": "cpu",
-            "compute_type": "int8"
+            "compute_type": "int8",
         },
-        "audio": {
-            "recording_device": None,
-            "notification_timeout": 3000
-        }
+        "audio": {"recording_device": None, "notification_timeout": 3000},
     }
-    
+
     try:
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             json.dump(default_config, f, indent=2)
     except Exception:
         pass  # Silently fail if can't create config
@@ -75,14 +70,14 @@ def _load_user_config():
     """Load user configuration from JSON file"""
     config_dir = _get_config_dir()
     config_file = config_dir / "config.json"
-    
+
     # Create default config if it doesn't exist
     if not config_file.exists():
         _create_default_config(config_file)
-    
+
     # Try to load user config
     try:
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             user_config = json.load(f)
             return user_config
     except Exception:
@@ -93,13 +88,13 @@ def _merge_configs():
     """Merge user config with base config"""
     config = BASE_CONFIG.copy()
     user_config = _load_user_config()
-    
+
     # Override transcription settings if present
     if "transcription" in user_config:
         transcription_config = user_config["transcription"]
         if "engine" in transcription_config:
             config["transcription_engine"] = transcription_config["engine"]
-    
+
     # Override whisper settings if present
     if "whisper" in user_config:
         whisper_config = user_config["whisper"]
@@ -111,7 +106,7 @@ def _merge_configs():
             config["whisper_device"] = whisper_config["device"]
         if "compute_type" in whisper_config:
             config["whisper_compute_type"] = whisper_config["compute_type"]
-    
+
     # Override audio settings if present
     if "audio" in user_config:
         audio_config = user_config["audio"]
@@ -119,7 +114,7 @@ def _merge_configs():
             config["recording_device"] = audio_config["recording_device"]
         if "notification_timeout" in audio_config:
             config["notification_timeout"] = audio_config["notification_timeout"]
-    
+
     return config
 
 

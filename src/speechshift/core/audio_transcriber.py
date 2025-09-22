@@ -38,9 +38,9 @@ class AudioTranscriber:
 
         # Librosa audio preprocessing parameters
         self.trim_top_db = 20  # dB threshold for silence trimming
-        
+
         # Assembly AI configuration
-        self.assembly_ai_key = os.environ.get('ASSEMBLYAI_API_KEY')
+        self.assembly_ai_key = os.environ.get("ASSEMBLYAI_API_KEY")
         if self.assembly_ai_key:
             aai.settings.api_key = self.assembly_ai_key
 
@@ -288,9 +288,11 @@ class AudioTranscriber:
     def _transcribe_with_assemblyai(self, audio_file: Path) -> Optional[str]:
         """Transcribe audio using Assembly AI Universal model (cheaper option)"""
         if not self.assembly_ai_key:
-            logger.error("Assembly AI API key not found in environment variables (ASSEMBLYAI_API_KEY)")
+            logger.error(
+                "Assembly AI API key not found in environment variables (ASSEMBLYAI_API_KEY)"
+            )
             return None
-        
+
         try:
             # Configure transcriber with Universal model (cheaper)
             config = aai.TranscriptionConfig(
@@ -302,47 +304,49 @@ class AudioTranscriber:
                 filter_profanity=False,
                 redact_pii=False,
                 speaker_labels=False,  # Disable to reduce cost
-                summarization=False,   # Disable to reduce cost
+                summarization=False,  # Disable to reduce cost
                 sentiment_analysis=False,  # Disable to reduce cost
-                entity_detection=False,    # Disable to reduce cost
-                iab_categories=False,      # Disable to reduce cost
-                content_safety=False,      # Disable to reduce cost
-                auto_highlights=False,     # Disable to reduce cost
+                entity_detection=False,  # Disable to reduce cost
+                iab_categories=False,  # Disable to reduce cost
+                content_safety=False,  # Disable to reduce cost
+                auto_highlights=False,  # Disable to reduce cost
                 audio_start_from=None,
-                audio_end_at=None
+                audio_end_at=None,
             )
-            
+
             transcriber = aai.Transcriber(config=config)
             logger.info(f"Starting Assembly AI transcription of: {audio_file}")
-            
+
             # Transcribe the audio file
             transcript = transcriber.transcribe(str(audio_file))
-            
+
             # Check if transcription was successful
             if transcript.status == aai.TranscriptStatus.error:
                 logger.error(f"Assembly AI transcription failed: {transcript.error}")
                 return None
-            
+
             if not transcript.text or not transcript.text.strip():
                 logger.warning("Assembly AI transcription resulted in empty text")
                 return None
-            
+
             # Post-process the text
             processed_text = self._post_process_text(transcript.text)
             logger.info(f"Assembly AI transcription completed: '{processed_text}'")
             return processed_text
-            
+
         except Exception as e:
             logger.error(f"Assembly AI transcription failed: {e}")
             return None
 
-    def transcribe_audio(self, audio_file: Path, engine: str = "whisper") -> Optional[str]:
+    def transcribe_audio(
+        self, audio_file: Path, engine: str = "whisper"
+    ) -> Optional[str]:
         """Transcribe audio file to text with preprocessing and optimization
-        
+
         Args:
             audio_file: Path to the audio file to transcribe
             engine: Transcription engine to use ("whisper" or "assemblyai")
-        
+
         Returns:
             Transcribed text or None if transcription failed
         """
@@ -369,7 +373,9 @@ class AudioTranscriber:
 
             # Save preprocessed audio to temporary file
             preprocessed_file = audio_file.parent / f"preprocessed_{audio_file.name}"
-            self._save_preprocessed_audio(normalized_audio, sample_rate, preprocessed_file)
+            self._save_preprocessed_audio(
+                normalized_audio, sample_rate, preprocessed_file
+            )
 
             try:
                 return self._transcribe_with_whisper(preprocessed_file)
@@ -381,15 +387,17 @@ class AudioTranscriber:
                 except Exception as e:
                     logger.warning(f"Failed to clean up preprocessed file: {e}")
         else:
-            logger.error(f"Unsupported transcription engine: {engine}. Use 'whisper' or 'assemblyai'")
+            logger.error(
+                f"Unsupported transcription engine: {engine}. Use 'whisper' or 'assemblyai'"
+            )
             return None
 
     def is_available(self, engine: str = "whisper") -> bool:
         """Check if transcription is available for the specified engine
-        
+
         Args:
             engine: Transcription engine to check ("whisper" or "assemblyai")
-        
+
         Returns:
             True if the specified engine is available, False otherwise
         """
