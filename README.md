@@ -11,7 +11,7 @@ Demo done on [omarchy](https://omarchy.org/) running hyprland
 ![Demo](demo.gif)
 
 ## Roadmap
-- Support for even faster transcription methods like nvidia parakeet
+- Support for even faster transcription local methods like nvidia parakeet
 - Custom vocabulary support
 - Use LLM's like ChatGPT to auto format text before pasting
 
@@ -101,12 +101,11 @@ Main Python Script
     ├── PipeWire Audio Recording (sounddevice)
     ├── AI Transcription (faster-whisper)
     ├── Temporary File Management
-    ├── Wayland Text Input (wl-clipboard + wtype)
+    ├── Wayland Text Input (wl-clipboard + hyprctl simulate control+V)
     ├── Smart Notifications (notify-send)
-    └── Hyprland IPC (optional window detection)
 ```
 
-### Recording Workflow
+### Workflow
 
 1. **Keybind Press**: Hyprland detects Super+Shift+R press
 2. **Recording Start**:
@@ -118,7 +117,7 @@ Main Python Script
    - Audio capture stops
    - Notification: "🔄 Transcribing audio..."
    - faster-whisper transcribes the audio
-   - Transcribed text inserted via wtype
+   - Transcribed text pasted into active window
    - Temporary file automatically deleted
    - Success notification: "✅ Transcribed: [preview]"
 
