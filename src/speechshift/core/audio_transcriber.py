@@ -11,7 +11,7 @@ from speechshift.core.config import CONFIG
 from speechshift.core.logger import logger
 
 
-class WhisperTranscriber:
+class AudioTranscriber:
     """
     Handle audio transcription using faster-whisper
     """
@@ -239,6 +239,45 @@ class WhisperTranscriber:
 
         return text
 
+    def _transcribe_with_whisper(self, preprocessed_file: Path) -> Optional[str]:
+        """Transcribe audio using Whisper model"""
+        # Perform transcription
+        segments, info = self.model.transcribe(
+            str(preprocessed_file),
+            language=self.language,
+            beam_size=self.beam_size,
+            temperature=self.temperature,
+            repetition_penalty=self.repetition_penalty,
+            no_repeat_ngram_size=self.no_repeat_ngram_size,
+            condition_on_previous_text=self.condition_on_previous_text,
+            word_timestamps=self.word_timestamps,
+            vad_filter=self.vad_filter,
+            vad_parameters=(
+                dict(
+                    threshold=self.vad_threshold,
+                    min_silence_duration_ms=self.silence_duration_ms,
+                )
+                if self.vad_filter
+                else None
+            ),
+        )
+
+        # Collect all text segments
+        transcribed_text = ""
+        for segment in segments:
+            transcribed_text += segment.text
+
+        # Clean up and post-process the text
+        transcribed_text = transcribed_text.strip()
+        logger.info(f"Before postprocessing: {transcribed_text}")
+        if transcribed_text:
+            processed_text = self._post_process_text(transcribed_text)
+            logger.info(f"Transcription completed: '{processed_text}'")
+            return processed_text
+        else:
+            logger.warning("Transcription resulted in empty text")
+            return None
+
     def transcribe_audio(self, audio_file: Path) -> Optional[str]:
         """Transcribe audio file to text with preprocessing and optimization"""
         if not audio_file.exists():
@@ -255,50 +294,15 @@ class WhisperTranscriber:
             return None
 
         # Apply preprocessing
-        trimmed_audio = self._trim_silence(audio_data, sample_rate)
-        normalized_audio = self._normalize_audio(trimmed_audio)
+        # trimmed_audio = self._trim_silence(audio_data, sample_rate)
+        normalized_audio = self._normalize_audio(audio_data)
 
         # Save preprocessed audio to temporary file
         preprocessed_file = audio_file.parent / f"preprocessed_{audio_file.name}"
         self._save_preprocessed_audio(normalized_audio, sample_rate, preprocessed_file)
 
         try:
-            # Perform transcription
-            segments, info = self.model.transcribe(
-                str(preprocessed_file),
-                language=self.language,
-                beam_size=self.beam_size,
-                temperature=self.temperature,
-                repetition_penalty=self.repetition_penalty,
-                no_repeat_ngram_size=self.no_repeat_ngram_size,
-                condition_on_previous_text=self.condition_on_previous_text,
-                word_timestamps=self.word_timestamps,
-                vad_filter=self.vad_filter,
-                vad_parameters=(
-                    dict(
-                        threshold=self.vad_threshold,
-                        min_silence_duration_ms=self.silence_duration_ms,
-                    )
-                    if self.vad_filter
-                    else None
-                ),
-            )
-
-            # Collect all text segments
-            transcribed_text = ""
-            for segment in segments:
-                transcribed_text += segment.text
-
-            # Clean up and post-process the text
-            transcribed_text = transcribed_text.strip()
-            logger.info(f"Before postprocessing: {transcribed_text}")
-            if transcribed_text:
-                processed_text = self._post_process_text(transcribed_text)
-                logger.info(f"Transcription completed: '{processed_text}'")
-                return processed_text
-            else:
-                logger.warning("Transcription resulted in empty text")
-                return None
+            return self._transcribe_with_whisper(preprocessed_file)
         finally:
             # Clean up preprocessed file
             try:

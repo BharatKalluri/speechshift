@@ -9,7 +9,7 @@ import numpy as np
 import sounddevice as sd
 
 from speechshift.core.notification_manager import NotificationManager
-from speechshift.core.whisper_transcriber import WhisperTranscriber
+from speechshift.core.audio_transcriber import AudioTranscriber
 from speechshift.core.config import CONFIG
 from speechshift.core.logger import logger
 from speechshift.core.wayland_text_input import WaylandTextInput
@@ -132,7 +132,7 @@ class AudioRecorder:
         NotificationManager.transcription_started()
 
         try:
-            transcriber = WhisperTranscriber()
+            transcriber = AudioTranscriber()
             transcribed_text = transcriber.transcribe_audio(temp_file)
 
             if transcribed_text:

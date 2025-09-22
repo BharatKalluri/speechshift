@@ -55,9 +55,9 @@ def main():
 
         # Test Whisper transcription
         try:
-            from speechshift.core.whisper_transcriber import WhisperTranscriber
+            from speechshift.core.audio_transcriber import AudioTranscriber
 
-            transcriber = WhisperTranscriber()
+            transcriber = AudioTranscriber()
             if transcriber.is_available():
                 print(
                     f"Whisper transcription available: model={CONFIG['whisper_model']}"
