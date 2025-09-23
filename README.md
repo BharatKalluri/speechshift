@@ -4,6 +4,8 @@ A fully local, offline first speech-to-text application made for desktop environ
 
 Records audio when a hotkey is pressed, transcribes it using faster-whisper, and automatically types the transcribed text.
 
+> This is in beta, since I've been testing only on my system. Please file bug reports if something does not work. Thanks!
+
 ## Demo
 
 Demo done on [omarchy](https://omarchy.org/) running hyprland
