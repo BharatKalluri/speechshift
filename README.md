@@ -10,7 +10,7 @@ Records audio when a hotkey is pressed, transcribes it using faster-whisper, and
 
 Demo done on [omarchy](https://omarchy.org/) running hyprland
 
-![Demo](demo.gif)
+https://github.com/user-attachments/assets/26a71652-d7e5-4c7f-adf6-217645250771
 
 ## Roadmap
 - Support for even faster transcription local methods like nvidia parakeet
